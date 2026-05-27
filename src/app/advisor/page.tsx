@@ -11,6 +11,48 @@ interface Message {
   content: string;
 }
 
+// Lightweight Markdown-to-HTML parser for static clients
+function parseMarkdown(text: string) {
+  const lines = text.split('\n');
+  return lines.map((line, i) => {
+    let processed = line;
+    
+    // Bold: **text** -> <strong>text</strong>
+    processed = processed.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-100 font-bold">$1</strong>');
+    
+    // Links: [text](url) -> <a href="basePath/url" class="...">text</a>
+    processed = processed.replace(/\[(.*?)\]\((.*?)\)/g, (match, p1, p2) => {
+      const href = p2.startsWith('/') ? `/lifesimulator${p2}` : p2;
+      return `<a href="${href}" class="text-cyber-cyan hover:underline font-bold">${p1}</a>`;
+    });
+
+    // Check if bullet point
+    if (line.trim().startsWith('- ')) {
+      const content = processed.replace(/^\s*-\s+/, '');
+      return (
+        <li key={i} className="list-disc ml-4 my-1 text-slate-300" dangerouslySetInnerHTML={{ __html: content }} />
+      );
+    }
+
+    // Check if numbered list
+    const numMatch = line.trim().match(/^(\d+)\.\s+(.*)/);
+    if (numMatch) {
+      const content = processed.replace(/^\s*\d+\.\s+/, '');
+      return (
+        <li key={i} className="list-decimal ml-4 my-1 text-slate-300" dangerouslySetInnerHTML={{ __html: content }} />
+      );
+    }
+
+    if (line.trim() === '') {
+      return <div key={i} className="h-2" />;
+    }
+
+    return (
+      <p key={i} className="mb-1.5 text-slate-300" dangerouslySetInnerHTML={{ __html: processed }} />
+    );
+  });
+}
+
 export default function AdvisorPage() {
   const { profile, scenarios, isLoading } = useAppContext();
   
@@ -209,10 +251,14 @@ export default function AdvisorPage() {
                 className={`max-w-[85%] rounded-xl px-4 py-3 text-xs leading-relaxed ${
                   msg.role === 'user'
                     ? 'bg-cyber-cyan/15 border border-cyber-cyan/25 text-slate-100 rounded-tr-none'
-                    : 'bg-slate-950/60 border border-white/5 text-slate-300 rounded-tl-none whitespace-pre-line'
+                    : 'bg-slate-950/60 border border-white/5 text-slate-300 rounded-tl-none'
                 }`}
               >
-                {msg.content}
+                {msg.role === 'user' ? (
+                  msg.content
+                ) : (
+                  <div className="space-y-0.5">{parseMarkdown(msg.content)}</div>
+                )}
               </div>
             </motion.div>
           ))}
