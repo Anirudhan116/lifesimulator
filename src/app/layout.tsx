@@ -28,6 +28,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-[#030014] text-slate-100 font-sans selection:bg-cyber-cyan/30 selection:text-cyber-cyan">
         {/* Orbital Background Glows */}
