@@ -1,2 +1,2 @@
-:HL["/lifesimulator/_next/static/chunks/0fmm4_f9.1ll0.css","style"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"Y0iuwIY52P-VwAOUAhBrY"}
+:HL["/lifesimulator/_next/static/chunks/18c~3r10cl8nm.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"/_not-found","param":null,"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}},"staleTime":300,"buildId":"4WlL9DS_MpGnq-isJ2pfR"}
