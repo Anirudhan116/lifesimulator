@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Sparkles, MessageSquare, Terminal, Key, ShieldCheck, HelpCircle, Loader2 } from 'lucide-react';
+import { getClientFallbackResponse } from '@/utils/aiClientFallback';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -53,37 +54,42 @@ export default function AdvisorPage() {
     setSending(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMessage],
-          profile,
-          scenarios,
-          userApiKey
-        })
-      });
-
-      const data = await response.json();
+      let replyText = '';
       
-      if (response.ok && data.message) {
-        setMessages((prev) => [...prev, { role: 'assistant', content: data.message }]);
-      } else {
-        setMessages((prev) => [
-          ...prev, 
-          { 
-            role: 'assistant', 
-            content: `Advisor connection error: ${data.error || 'Server returned an invalid response.'}` 
-          }
-        ]);
+      try {
+        const response = await fetch('api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: [...messages, userMessage],
+            profile,
+            scenarios,
+            userApiKey
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.message) {
+          replyText = data.message;
+        } else {
+          // Server returned error, run client side fallback
+          replyText = getClientFallbackResponse(text, profile, scenarios);
+        }
+      } catch (fetchErr) {
+        // Network fail / 404 (due to static hosting), run client side fallback
+        replyText = getClientFallbackResponse(text, profile, scenarios);
       }
+
+      setMessages((prev) => [...prev, { role: 'assistant', content: replyText }]);
     } catch (err) {
       console.error(err);
+      const fallbackMsg = getClientFallbackResponse(text, profile, scenarios);
       setMessages((prev) => [
         ...prev, 
         { 
           role: 'assistant', 
-          content: "Sorry, I had trouble reaching the AI coordinator. Please check your internet connection and try again." 
+          content: fallbackMsg
         }
       ]);
     } finally {
