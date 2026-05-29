@@ -22,7 +22,8 @@ function parseMarkdown(text: string) {
     
     // Links: [text](url) -> <a href="basePath/url" class="...">text</a>
     processed = processed.replace(/\[(.*?)\]\((.*?)\)/g, (match, p1, p2) => {
-      const href = p2.startsWith('/') ? `/lifesimulator${p2}` : p2;
+      const basePath = typeof window !== 'undefined' && window.location.pathname.startsWith('/lifesimulator') ? '/lifesimulator' : '';
+      const href = p2.startsWith('/') ? `${basePath}${p2}` : p2;
       return `<a href="${href}" class="text-cyber-cyan hover:underline font-bold">${p1}</a>`;
     });
 
